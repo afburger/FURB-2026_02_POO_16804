@@ -5,7 +5,8 @@
 
 ## Sumário
 
-- [Aula 1 - Introdução à Programação Orientada a Objetos](#aula-1)
+- [Aula 1 - Introdução à Programação Orientada a Objetos](#aula-1)  
+- [Aula 2 - Escopo de Variáveis](#aula-2)
 
 <!--
 Padrão para as próximas aulas:
@@ -243,3 +244,150 @@ Conforme Barker (2005):
 - Um **objeto** é uma construção de software que empacota estado (dados) e comportamento (funções) e representa uma abstração do mundo real.
 - Uma **classe** é uma abstração que descreve as características comuns de todos os objetos de um grupo de objetos comuns.
 - Uma classe pode ser vista como um **modelo (molde) para criar objetos**.
+
+---
+
+<a id="aula-2"></a>
+
+## Aula 2 - Escopo de Variáveis
+
+### 1. O que é escopo
+
+O escopo de uma variável denota sua visibilidade no programa, isto é, onde a variável é acessível. Fora desse contexto, o identificador não pode ser utilizado (está fora do escopo da variável).
+
+Em Java, o escopo de uma variável depende de onde ela é declarada. A classe abaixo serve de referência para os três tipos de escopo:
+
+```java
+public class MinhaClasse {
+
+    int var1;                          // variável de instância
+
+    void metodoA() {
+        var1 = 20;
+    }
+
+    void metodoB() {
+        String var2;                   // variável local
+        var2 = "TESTE";
+
+        do {
+            int var3 = 10;             // variável de bloco
+        } while (false);
+
+        System.out.println(var2);
+    }
+}
+```
+
+| Variável | Onde é declarada | Tipo de escopo |
+|---|---|---|
+| `var1` | no corpo da classe, fora dos métodos | de instância |
+| `var2` | dentro do corpo de um método | local |
+| `var3` | dentro de um bloco (`do { ... }`) | de bloco |
+
+---
+
+### 2. Variável de instância
+
+- É declarada no corpo da classe, fora de qualquer método.
+- O escopo da variável de instância são **todos os métodos da classe**.
+- No exemplo, `var1` pode ser lida e alterada tanto por `metodoA` quanto por `metodoB`.
+
+> Cada objeto possui sua própria cópia das variáveis de instância; elas existem enquanto o objeto existir.
+
+---
+
+### 3. Variável local
+
+- É uma variável criada dentro do corpo de um método.
+- O escopo da variável local é o **próprio método** em que a variável foi declarada.
+- No exemplo, `var2` só existe dentro de `metodoB`.
+
+> Os parâmetros de um método também têm escopo local: valem apenas dentro do método que os declara.
+
+---
+
+### 4. Variável de bloco
+
+- É uma variável criada dentro de um bloco (delimitado por `{ }`) dentro de um método, por exemplo em um `do/while`, `for` ou `if`.
+- O escopo da variável de bloco é o **bloco onde a variável foi declarada**.
+- No exemplo, `var3` só existe dentro do bloco do `do/while`; após o `}` do bloco ela deixa de existir.
+
+---
+
+### 5. Inicialização de variáveis
+
+As variáveis declaradas num método ou num bloco (locais e de bloco) **não possuem valor inicial**. Só é possível ler o valor depois de atribuir explicitamente um valor. Tentar ler antes gera erro de compilação.
+
+Já as variáveis de instância têm **valor padrão**: o Java as inicializa automaticamente.
+
+| Tipo da variável de instância | Valor padrão |
+|---|---|
+| Numérica inteira (`byte`, `short`, `int`, `long`) | `0` |
+| Numérica de ponto flutuante (`float`, `double`) | `0.0` |
+| `char` | `'\u0000'` (caractere nulo) |
+| `boolean` | `false` |
+| Referência (objetos, `String`, arrays) | `null` |
+
+> Resumo prático: variáveis numéricas iniciam em `0`, booleanas em `false` e variáveis de referência em `null`.
+
+---
+
+### 6. Mesmo nome em escopos diferentes
+
+É possível declarar duas variáveis com o mesmo nome, desde que estejam em escopos diferentes.
+
+```java
+public static void main(String[] args) {
+
+    {
+        int x = 0;
+        System.out.println(x);
+    }
+
+    {
+        String x = "10";
+        System.out.println(x);
+    }
+
+}
+```
+
+Cada `x` só é válido dentro do seu próprio bloco; são variáveis independentes.
+
+---
+
+### 7. Variável local com o mesmo nome de uma de instância (sombreamento)
+
+Também é possível usar, num mesmo contexto, o mesmo identificador para uma variável local e uma de instância. Quando isso acontece, a linguagem dá preferência à variável **local** (mais interna). Esse efeito é chamado de sombreamento (variable shadowing): a variável local "esconde" a de instância.
+
+Para acessar explicitamente a variável de instância, usa-se `this`:
+
+```java
+public class Classe1 {
+
+    int var1 = 20;                     // variável de instância
+
+    void exibir() {
+        int var1 = 5;                  // variável local (sombreia a de instância)
+
+        this.var1 = 10;                // altera a variável de instância
+
+        System.out.println(var1);       // imprime 5  (local)
+        System.out.println(this.var1);  // imprime 10 (instância)
+    }
+}
+```
+
+- `var1` (sem qualificador) refere-se à variável **local**.
+- `this.var1` refere-se à variável **de instância**.
+
+> Boa prática: evite sombreamento desnecessário, pois ele dificulta a leitura. A exceção comum e aceita é o padrão `this.campo = campo;` em construtores e métodos `set`, onde o parâmetro tem o mesmo nome do atributo.
+
+---
+
+### 8. Boas práticas de escopo
+
+- Declare cada variável no **menor escopo possível** e o mais próximo de onde ela é usada.
+- Prefira variáveis locais a variáveis de instância quando o dado não precisa persistir no objeto.
+- Não confie no valor padrão de variáveis de instância como se fosse um valor "de negócio": inicialize explicitamente quando o valor importar.

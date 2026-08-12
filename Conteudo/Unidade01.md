@@ -5,8 +5,9 @@
 
 ## Sumário
 
-- [Aula 1 - Introdução à Programação Orientada a Objetos](#aula-1)  
+- [Aula 1 - Introdução à Programação Orientada a Objetos](#aula-1)
 - [Aula 2 - Escopo de Variáveis](#aula-2)
+- [Aula 3 - Diagrama de Objetos, Encapsulamento e Membros de Classe](#aula-3)
 
 <!--
 Padrão para as próximas aulas:
@@ -391,3 +392,342 @@ public class Classe1 {
 - Declare cada variável no **menor escopo possível** e o mais próximo de onde ela é usada.
 - Prefira variáveis locais a variáveis de instância quando o dado não precisa persistir no objeto.
 - Não confie no valor padrão de variáveis de instância como se fosse um valor "de negócio": inicialize explicitamente quando o valor importar.
+
+---
+
+<a id="aula-3"></a>
+
+## Aula 3 - Diagrama de Objetos, Encapsulamento e Membros de Classe
+
+### 1. Diagrama de Objetos
+
+#### 1. O que é um diagrama de objetos
+
+- É um diagrama que mostra uma fotografia do estado detalhado de um sistema, num determinado instante do tempo.
+- É um diagrama da UML que contém somente objetos (não contém classes).
+- Fornece uma perspectiva concreta de objetos e seus relacionamentos.
+- Tem uso limitado, pois apresenta somente estruturas de dados (o estado), sem representar o comportamento.
+
+---
+
+#### 2. Notação (elementos do diagrama)
+
+Cada objeto é representado por um retângulo com dois compartimentos: no topo, a identificação `nomeObjeto : Classe` (com o nome sublinhado, indicando que é uma instância); abaixo, os valores dos atributos.
+
+```text
++-----------------------+
+| nomeObjeto : Classe   |   (nome sublinhado)
++-----------------------+
+| atributo1 = valor     |
+| atributo2 = valor     |
+| ...                   |
++-----------------------+
+```
+
+> O nome do objeto é sublinhado (é o que distingue um objeto de uma classe no diagrama). É possível representar um objeto anônimo, omitindo o nome: `: Classe`.
+
+---
+
+#### 3. Diagrama de classes x diagrama de objetos
+
+Os dois diagramas são complementares. O de classes descreve a estrutura (os tipos); o de objetos mostra instâncias concretas num instante.
+
+Tomando a classe `Pessoa` como exemplo:
+
+Diagrama de classes:
+
+```text
++---------------------------+
+|          Pessoa           |
++---------------------------+
+| peso : double             |
+| altura : double           |
++---------------------------+
+| calcularImc() : double    |
++---------------------------+
+```
+
+Diagrama de objetos (um objeto):
+
+```text
++---------------------+
+| marta : Pessoa      |
++---------------------+
+| peso = 78           |
+| altura = 1.71       |
++---------------------+
+```
+
+A partir de uma mesma classe podem existir vários objetos, cada um com seu próprio estado:
+
+```text
++-----------------+   +-----------------+   +-----------------+
+| p1 : Pessoa     |   | p2 : Pessoa     |   | : Pessoa        |
++-----------------+   +-----------------+   +-----------------+
+| peso = 78       |   | peso = 68       |   | peso = 84       |
+| altura = 1.71   |   | altura = 1.70   |   | altura = 1.79   |
++-----------------+   +-----------------+   +-----------------+
+```
+
+O terceiro objeto está anônimo (sem nome antes de `: Pessoa`).
+
+| Aspecto | Diagrama de classes | Diagrama de objetos |
+|---|---|---|
+| O que mostra | a estrutura (tipos) | instâncias concretas num instante |
+| Conteúdo | classes, atributos (com tipo) e operações | objetos e valores de atributos |
+| Atributos | `peso : double` | `peso = 78` |
+| Quantidade | uma classe | vários objetos da mesma classe |
+
+> Cada objeto do diagrama corresponde, em código, a um `new` já executado: `p1` seria o resultado de `new Pessoa()` com `peso = 78` e `altura = 1.71`.
+
+---
+
+### 2. Encapsulamento
+
+#### 1. Motivação
+
+Considere a classe abaixo, usada para representar contas bancárias, com os atributos sem controle de acesso:
+
+```java
+public class ContaBancaria {
+
+    String titular;
+    double saldo;
+
+    void depositar(double valor) {
+        saldo = saldo + valor;
+    }
+
+    void sacar(double valor) {
+        saldo = saldo - valor;
+    }
+}
+```
+
+Uma classe cliente consegue usar os métodos normalmente:
+
+```java
+public class CaixaEletronico {
+
+    public static void main(String[] args) {
+        ContaBancaria conta1 = new ContaBancaria();
+        conta1.titular = "Sandro da Silva";
+        conta1.depositar(500);
+        conta1.sacar(100);
+        System.out.println(conta1.saldo);   // mostra 400
+    }
+}
+```
+
+O problema aparece quando a classe cliente acessa o atributo diretamente:
+
+```java
+conta1.saldo = 10000;   // define o saldo sem um depósito correspondente
+```
+
+Esse comando permite definir um valor de saldo sem que exista um depósito correspondente, violando a integridade dos dados.
+
+---
+
+#### 2. O que é encapsulamento
+
+- O acesso ao atributo deve ser controlado, para garantir a integridade dos dados (o estado do objeto precisa ser controlado).
+- Somente o próprio objeto deveria manipular o valor de seus atributos.
+- Essa técnica se chama encapsulamento de dados.
+- Em Java, para aplicar o encapsulamento é preciso tornar o atributo privado (`private`).
+
+---
+
+#### 3. Modificadores de acesso (visibilidade)
+
+Em UML, um atributo encapsulado é indicado por um sinal de `-` na frente do nome. Outros símbolos indicam o grau de visibilidade dos membros (atributos e operações):
+
+| Símbolo UML | Nome | Palavra reservada | Significado |
+|---|---|---|---|
+| `-` | Privado | `private` | Somente visível pela própria classe |
+| `+` | Público | `public` | Visível para qualquer classe |
+| `#` | Protegido | `protected` | Estudaremos mais tarde (herança) |
+| `~` | De pacote | (ausência de símbolo) | Estudaremos mais tarde |
+
+A palavra reservada também é conhecida como modificador de acesso. Sintaxe para declarar um atributo em Java:
+
+```text
+modificador_de_acesso tipo_de_dado identificador;
+```
+
+Exemplo:
+
+```java
+private double saldo;
+```
+
+---
+
+#### 4. Métodos de acesso (getters e setters)
+
+- Todos os atributos de um objeto deveriam ser encapsulados.
+- Os atributos que precisam ser acessados por outras classes podem ser expostos por meio de métodos de acesso, geralmente públicos.
+- **Getters**: recuperam o valor de um atributo. O nome usa o prefixo `get` seguido do nome do atributo com a inicial maiúscula. Exceção: se o atributo for lógico (booleano), usa-se o prefixo `is`. O getter nunca tem parâmetro, é do tipo função e retorna um dado do mesmo tipo do atributo.
+- **Setters**: atribuem valor a um atributo. O nome usa o prefixo `set` seguido do nome do atributo com a inicial maiúscula. O setter sempre tem um parâmetro, é do tipo procedimento (`void`) e o parâmetro é do mesmo tipo do atributo.
+
+Exemplo completo, já encapsulado e com métodos de acesso para `titular`:
+
+```java
+public class ContaBancaria {
+
+    private String titular;
+    private double saldo;
+
+    void depositar(double valor) {
+        saldo = saldo + valor;
+    }
+
+    void sacar(double valor) {
+        saldo = saldo - valor;
+    }
+
+    public void setTitular(String titular) {
+        this.titular = titular;
+    }
+
+    public String getTitular() {
+        return titular;
+    }
+}
+```
+
+> Observação: o setter é o lugar natural para validar o valor antes de alterar o estado do objeto (por exemplo, recusar valores negativos, ou impedir que `sacar` deixe o saldo negativo). É justamente esse controle que a Motivação da Aula pedia. Um setter que só faz a atribuição direta não agrega proteção sobre o dado.
+
+---
+
+#### 5. A palavra-chave this
+
+- `this` refere-se ao objeto corrente, isto é, o objeto no qual o método foi chamado.
+- O principal motivo para usar `this` é quando um parâmetro de método possui o mesmo nome de uma variável de instância.
+- Quando há dois identificadores com o mesmo nome, por padrão o Java usa o de menor escopo (o parâmetro/variável local). Para acessar explicitamente a variável de instância, usa-se `this.atributo` (ver [Aula 2 - Escopo de Variáveis](#aula-2), sombreamento).
+
+No método `setTitular` acima, o parâmetro e o atributo se chamam `titular`; `this.titular` refere-se ao atributo, e `titular` (sem qualificador) ao parâmetro.
+
+---
+
+#### 6. Boas práticas de encapsulamento
+
+- Sempre dar preferência a encapsular todos os atributos de uma classe.
+- Somente é admissível utilizar `public` para constantes.
+- Se for necessário expor o valor de um atributo para outros objetos/classes, implementar um método getter.
+- Se for necessário permitir que outros objetos/classes definam o valor de um atributo, implementar um método setter (aproveitando para validar).
+
+---
+
+#### 7. Encapsulamento de métodos
+
+- Ao utilizar POO, é possível ocultar a complexidade do trabalho interno executado pelo objeto.
+- Isso cria uma forma simplificada e compreensível de utilizar o objeto, o que favorece a reutilização.
+- Analogia: o motorista não precisa compreender como o mecanismo interno de combustão funciona para ligar o carro.
+
+---
+
+### 3. Membros de Classe, Sobrecarga e Construtores
+
+#### 1. Membros de classe (estáticos)
+
+- São membros (variáveis ou métodos) que pertencem à classe, e não a nenhuma instância em particular.
+- Podem ser utilizados sem que haja uma instância da classe.
+- No diagrama de classes, os membros de classe são sublinhados.
+
+##### Variáveis de classe
+
+- Uma variável comum e compartilhada entre todas as instâncias.
+- Pode ser manipulada sem que haja uma instância; o acesso usa a sintaxe `Classe.identificador`.
+- Também chamadas de variáveis estáticas ou campos de classe.
+
+Sintaxe:
+
+```text
+modificador static tipo_de_dado identificador;
+```
+
+Exemplo:
+
+```java
+private static int atributo1;
+```
+
+##### Métodos de classe
+
+- Podem manipular variáveis de classe.
+- Não podem manipular variáveis de instância sem uma instância explícita.
+- Não podem reusar métodos de instância.
+- Não podem utilizar a palavra `this`.
+
+Sintaxe:
+
+```text
+modificador static tipo_de_dado identificador(parametros);
+```
+
+##### Exemplos de membros estáticos da biblioteca Java
+
+`Integer.MAX_VALUE`, `Math.sqrt()`, `Math.abs()`, `Math.max()`, `JOptionPane.showInputDialog()`, `JOptionPane.showMessageDialog()`.
+
+> Todos são acessados pela classe (`Classe.membro`), sem criar um objeto.
+
+---
+
+#### 2. Sobrecarga de métodos
+
+- A linguagem Java suporta a sobrecarga de métodos, isto é, a implementação de vários métodos com o mesmo nome.
+- Os métodos devem ter assinaturas diferentes: podem ter o mesmo nome desde que a lista de parâmetros seja diferente.
+- O compilador não considera o tipo de retorno para diferenciar o método. Por isso, dois métodos com a mesma assinatura mas retornos distintos não podem ser implementados na mesma classe.
+- Deve ser utilizada com moderação, pois pode tornar o código menos legível.
+
+Exemplo de sobrecarga (mesmo nome, listas de parâmetros diferentes):
+
+```java
+int somar(int a, int b) {
+    return a + b;
+}
+
+double somar(double a, double b) {
+    return a + b;
+}
+
+int somar(int a, int b, int c) {
+    return a + b + c;
+}
+```
+
+---
+
+#### 3. Construtores
+
+- São similares a métodos, com a exceção de que são invocados exclusivamente durante a criação de objetos.
+- São utilizados para inicializar um objeto.
+- A declaração é semelhante à de um método, porém não possui tipo de dado de retorno e seu identificador é igual ao nome da classe.
+- Não é obrigatório criar um construtor. Quando nenhum é implementado, o compilador fornece automaticamente um construtor padrão (um construtor sem argumentos).
+
+Exemplo:
+
+```java
+public class ContaBancaria {
+
+    private String titular;
+    private double saldo;
+
+    public ContaBancaria(String titular) {
+        this.titular = titular;
+        this.saldo = 0;
+    }
+}
+```
+
+> Observação importante: a partir do momento em que se declara qualquer construtor (como o `ContaBancaria(String)` acima), o compilador deixa de fornecer o construtor padrão sem argumentos. Se ainda for necessário criar objetos sem argumentos, é preciso declarar também um construtor sem parâmetros.
+
+##### O operador new
+
+O operador `new` realiza quatro operações:
+
+1. Cria o objeto na memória, alocando espaço para armazenar os valores de suas variáveis de instância.
+2. Inicializa as variáveis de instância (com os valores padrão).
+3. Executa o construtor que foi utilizado no operador `new`.
+4. Retorna o endereço de memória do objeto criado.

@@ -1,8 +1,8 @@
 # FURB-2025/02 CMP.0168.00.004
 Repositório destinado a matéria de POO (Programação Orientada à Objetos) lecionada na FURB no Semestre 02/2026 para o curso de Bacharelado de Ciências da Computação (BCC).  
 📆 Terça-feira ⌚18h30 às 22h  
-📆 Quinta-feira ⌚18h30 às 20h10  
-📍 Laboratório S-415
+📆 Quinta-feira ⌚20h20 às 22h00  
+📍 Laboratório S-429
 
 Olá, seja bem vindo .. 😁
 

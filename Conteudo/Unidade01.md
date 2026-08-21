@@ -8,6 +8,7 @@
 - [Aula 1 - Introdução à Programação Orientada a Objetos](#aula-1)
 - [Aula 2 - Escopo de Variáveis](#aula-2)
 - [Aula 3 - Diagrama de Objetos, Encapsulamento e Membros de Classe](#aula-3)
+- [Aula 4 - Lançamento de Exceções](#aula-4)
 
 <!--
 Padrão para as próximas aulas:
@@ -731,3 +732,70 @@ O operador `new` realiza quatro operações:
 2. Inicializa as variáveis de instância (com os valores padrão).
 3. Executa o construtor que foi utilizado no operador `new`.
 4. Retorna o endereço de memória do objeto criado.
+
+---
+
+<a id="aula-4"></a>
+
+## Aula 4 - Lançamento de Exceções
+
+### 1. O que é uma exceção
+
+- Uma exceção é um evento que ocorre durante a execução do programa e que interrompe o fluxo normal de execução.
+- Quando uma operação incorreta é identificada dentro de um método, o método pode criar um objeto de uma classe que caracteriza o erro e notificá-lo ao sistema.
+- Esse objeto é denominado objeto de exceção e contém informação sobre o erro.
+- Essa operação (criar o objeto e notificar o sistema) é conhecida como lançamento de exceção.
+- O efeito de uma exceção lançada é, por enquanto, abortar a execução do programa.
+
+> Ainda nesta unidade veremos como capturar e tratar exceções (com `try`/`catch`) para que o programa não seja abortado. Nesta aula tratamos apenas do lançamento.
+
+---
+
+### 2. Lançamento de exceções em Java
+
+A instrução para lançar uma exceção é `throw`, seguida da criação de um objeto de exceção. Sintaxe:
+
+```text
+throw new TipoDaExcecao("mensagem");
+```
+
+Onde a mensagem indica um texto que pode ser apresentado quando a exceção for gerada. Exemplo:
+
+```java
+throw new IllegalArgumentException("mensagem");
+```
+
+`IllegalArgumentException` é uma exceção pronta da biblioteca Java, usada para indicar que um argumento recebido é inválido.
+
+---
+
+### 3. Exemplo: validando um valor antes de alterar o estado
+
+O uso mais comum nesta fase é validar um valor dentro de um setter (ou construtor) antes de gravar o dado no objeto. Se o valor for inválido, o método lança a exceção e não altera o estado:
+
+```java
+public void setSalario(double novoSalario) {
+    if (novoSalario < 0) {
+        throw new IllegalArgumentException("Salário incorreto");
+    }
+    salario = novoSalario;
+}
+```
+
+Esse é exatamente o ponto que ficou pendente na [Aula 3 - Encapsulamento](#aula-3): o setter é o lugar de validar o dado, e o `throw` é o mecanismo que impede a atribuição de um valor inválido. Sem a validação, o atributo aceitaria qualquer valor; com ela, o objeto protege o próprio estado.
+
+---
+
+### 4. Código após o `throw`
+
+Quando uma instrução `throw` é sempre executada, não pode existir nenhum comando depois dela no mesmo bloco, pois esse comando seria inalcançável (o compilador acusa erro de código inalcançável).
+
+Atenção para não confundir com o exemplo acima: lá o `throw` está dentro de um `if` (execução condicional), então ele só ocorre quando o valor é inválido. Por isso a linha `salario = novoSalario;` depois do `if` é válida: ela é executada no caso normal, em que a exceção não foi lançada.
+
+```java
+// throw incondicional: a linha seguinte é inalcançável (erro de compilação)
+public void metodo() {
+    throw new IllegalArgumentException("sempre lança");
+    // salario = 10;   // NÃO compila: código inalcançável
+}
+```

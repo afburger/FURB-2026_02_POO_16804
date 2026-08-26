@@ -8,7 +8,7 @@
 - [Aula 1 - Introdução à Programação Orientada a Objetos](#aula-1)
 - [Aula 2 - Escopo de Variáveis](#aula-2)
 - [Aula 3 - Diagrama de Objetos, Encapsulamento e Membros de Classe](#aula-3)
-- [Aula 4 - Lançamento de Exceções](#aula-4)
+- [Aula 6 - Lançamento de Exceções](#aula-6)
 
 <!--
 Padrão para as próximas aulas:
@@ -737,7 +737,7 @@ O operador `new` realiza quatro operações:
 
 <a id="aula-4"></a>
 
-## Aula 4 - Lançamento de Exceções
+## Aula 6 - Lançamento de Exceções
 
 ### 1. O que é uma exceção
 
@@ -799,3 +799,306 @@ public void metodo() {
     // salario = 10;   // NÃO compila: código inalcançável
 }
 ```
+
+---
+
+<a id="aula-7"></a>
+
+## Aula 7 - Tratamento de Exceções
+
+### 1. Tipos de erros
+
+Durante a execução de um programa, podemos nos deparar com dois tipos de erros:
+
+| Tipo de erro | O que é | Pode ser evitado? |
+|---|---|---|
+| Erro de lógica | Erro de concepção do algoritmo | Sim, deve ser evitado |
+| Erro de execução | Operação sem suporte pelo ambiente durante a execução | Muitas vezes não |
+
+#### Erros de lógica
+
+São erros na concepção do algoritmo. O programa compila e executa, mas produz um resultado errado ou acessa algo que não deveria.
+
+```java
+double[] nota = new double[3];
+nota[0] = 10;
+nota[1] = 7;
+nota[2] = 8;
+
+double somaNotas = 0;
+for (int i = 0; i <= nota.length; i++) {   // erro de lógica: i <= length
+    somaNotas += nota[i];
+}
+
+System.out.println("A média é: " + (somaNotas / nota.length));
+```
+
+O erro está na condição `i <= nota.length`. Como os índices válidos vão de `0` a `nota.length - 1`, o laço tenta acessar `nota[3]`, que não existe. Os erros de lógica devem ser evitados, pois nascem de um raciocínio incorreto do programador.
+
+#### Erros de execução
+
+São erros causados por operações que não possuem suporte pelo ambiente no momento da execução. Exemplos:
+
+- Entrada de dados inadequada.
+- Manipulação indevida de arquivos.
+- Operação aritmética ilegal.
+- Comando não atendido pelo periférico.
+- Falta de memória.
+
+Os erros de execução correspondem a condições excepcionais ou anormais, frequentemente chamadas de **exceções**. Muitas vezes não podem ser evitados (dependem do usuário, do ambiente, de recursos externos). Diante deles, a pergunta é: como o programa deve se comportar?
+
+> Analogia: se o usuário digita uma URL incorreta no navegador, o esperado não é o navegador travar, e sim tratar a situação (avisar o usuário, pedir outra URL). O mesmo vale para os nossos programas.
+
+---
+
+### 2. Erros em Java e a hierarquia de classes
+
+Quando um erro de execução ocorre, a JVM o detecta, cria um objeto que caracteriza o erro e notifica o programa que o causou. A partir daí, o programa pode tratar o erro, inclusive acessando o objeto criado pela JVM.
+
+Java representa erros com classes. As duas principais, ambas subclasses de `Throwable`, são `Error` e `Exception`:
+
+```text
+                       Throwable
+                      /         \
+                  Error          Exception
+                 /     \         /        \
+    VirtualMachineError  \   RuntimeException   IOException
+      |  |  |          LinkageError    |  |  |
+      |  |  |                          |  |  |
+ InternalError                 ArithmeticException
+ OutOfMemoryError              IndexOutOfBoundsException
+ StackOverflowError            IllegalArgumentException
+                                    |
+                               NumberFormatException
+                               NullPointerException
+```
+
+Diferença fundamental entre os dois ramos:
+
+| Ramo | Significado | Espera-se tratamento? |
+|---|---|---|
+| `Error` e subclasses | Erros graves (falha da JVM, falta de memória, estouro de pilha) | Não. Não se espera que o programa os trate |
+| `Exception` e subclasses | Condições que o programa poderia contornar | Sim. Podem e devem ser tratadas quando fizer sentido |
+
+Além dos objetos criados pela JVM, o próprio programador pode criar explicitamente objetos para sinalizar situações de erro (como vimos no `throw`). Também é possível criar novas classes de erro, desde que sejam subclasses de `Throwable` ou de alguma de suas subclasses.
+
+---
+
+### 3. Como tratar exceções: o comando try..catch
+
+O tratamento de exceções é feito com o comando `try`. A sintaxe básica é:
+
+```java
+try {
+    comando;
+    comando;
+    comando;
+    // ...
+} catch (ClasseExcecao objeto) {
+    comando caso ocorra erro;
+    comando caso ocorra erro;
+    // ...
+}
+```
+
+Como funciona:
+
+- No início do `try`, o ambiente passa a monitorar a execução de todos os comandos declarados no seu corpo.
+- Se nenhum erro ocorrer, o `try` termina normalmente e o bloco `catch` não é executado.
+- Se ocorrer um erro em algum comando do bloco `try`, o fluxo é desviado para o bloco `catch`.
+- O `catch` exige um parâmetro: o objeto da exceção. Pode-se declarar qualquer classe que estenda `Throwable`.
+
+Exemplo: converter um texto digitado em número inteiro, capturando entrada inválida.
+
+```java
+Scanner teclado = new Scanner(System.in);
+int idade;
+try {
+    idade = Integer.parseInt(teclado.nextLine());
+} catch (NumberFormatException objErro) {
+    System.out.println("Valor incorreto.");
+}
+System.out.println("Fim");
+```
+
+Dizemos que esse fragmento é capaz de capturar o erro `NumberFormatException`. Se o usuário digitar algo que não é um número, em vez de abortar o programa, cai no `catch` e a execução segue no `println("Fim")`.
+
+Combinando com um laço, dá para insistir até o usuário digitar um valor válido:
+
+```java
+Scanner teclado = new Scanner(System.in);
+int num;
+
+System.out.println("Digite um número: ");
+while (true) {
+    try {
+        num = Integer.parseInt(teclado.nextLine());
+        System.out.println("O número informado é: " + num);
+        break;                          // sai do laço quando a conversão dá certo
+    } catch (NumberFormatException objErro) {
+        System.out.println("Valor incorreto. Por favor, digite novamente");
+    }
+}
+```
+
+> Quando a conversão funciona, o `break` encerra o laço. Quando falha, o `catch` avisa o usuário e o `while` repete a leitura.
+
+---
+
+### 4. Múltiplos catch
+
+Um mesmo comando `try` aceita várias cláusulas `catch`, cada uma tratando uma classe de erro diferente.
+
+```java
+Scanner teclado = new Scanner(System.in);
+
+try {
+    int a[] = new int[2];
+    a[4] = 30 / Integer.parseInt(teclado.nextLine());
+    System.out.println("Operação concluída com êxito");
+} catch (NumberFormatException e) {
+    System.out.println("Valor digitado é inválido");
+} catch (ArithmeticException e) {
+    System.out.println("Falha na divisão");
+} catch (ArrayIndexOutOfBoundsException e) {
+    System.out.println("Não conseguiu atribuir ao vetor");
+} catch (Exception e) {
+    System.out.println("Qualquer outra exceção");
+}
+System.out.println("Fora do bloco");
+```
+
+Como o mecanismo escolhe qual `catch` executar:
+
+1. Ao ocorrer um erro em um comando do bloco `try`, é criado um objeto da classe que caracteriza o erro e o programa é notificado.
+2. O comando que causou o erro é interrompido.
+3. As cláusulas `catch` são verificadas na ordem em que foram escritas, até encontrar uma que possa tratar aquele erro.
+4. Quando uma cláusula compatível é encontrada, o fluxo é desviado para o primeiro comando dela. Ao terminar, o `try` finaliza normalmente e o fluxo prossegue após o comando `try`.
+
+> Ordem importa. Cláusulas mais específicas devem vir antes das mais genéricas. Como `Exception` é superclasse das demais, ela fica por último, funcionando como um "pega tudo".
+
+#### Mesmo tratamento para várias classes (multi-catch, Java 7+)
+
+A partir do Java 7, uma única cláusula `catch` pode tratar várias classes de erro, separadas por `|`, quando o tratamento for o mesmo.
+
+```java
+try {
+    // ...
+} catch (IOException | SQLException ex) {
+    // ...
+}
+```
+
+---
+
+### 5. Propagação de erros
+
+Quando um método é interrompido por um erro, o controle retorna ao método que o chamou, que poderá tratar o erro.
+
+```java
+public static int obterValor() {
+    Scanner teclado = new Scanner(System.in);
+    int valor = Integer.parseInt(teclado.nextLine());
+    return valor;
+}
+
+public static void teste1() {
+    while (true) {
+        try {
+            int num = obterValor();
+            System.out.println("Numero informado = " + num);
+            break;
+        } catch (NumberFormatException e) {
+            System.out.println("Valor inválido. Informe novamente");
+        }
+    }
+
+    System.out.println("Fim");
+}
+```
+
+Repare que o erro pode acontecer dentro de `obterValor()`, mas quem o trata é `teste1()`, o método chamador. Regras da propagação:
+
+- Se o método chamador também não puder tratar o erro, ele também é interrompido.
+- A propagação continua subindo pela cadeia de chamadas até que algum método consiga tratar o erro.
+- O último método que tem a oportunidade de tratar o erro é o `main()`.
+- Se nem o `main()` tratar o erro, o programa é interrompido.
+
+---
+
+### 6. Exceções verificadas pelo compilador (checked)
+
+Alguns métodos exigem que o compilador force o programador a tratar a exceção no local onde ela pode ocorrer, ou a postergar explicitamente esse tratamento. Essas são as exceções **verificáveis** (checked).
+
+Regra de quais são verificáveis:
+
+- `Error` e `RuntimeException`, bem como todas as suas subclasses, **não** são verificáveis.
+- Todas as demais classes de exceção **são** verificáveis.
+
+O código abaixo não compila, porque `FileReader` pode lançar `FileNotFoundException`, que é verificável e precisa ser tratada:
+
+```java
+public void abrirArquivo() {
+    arquivo = new FileReader("arquivo.txt");   // erro de compilação
+}
+```
+
+Uma forma de resolver é tratar a exceção ali mesmo, com `try..catch`:
+
+```java
+public void abrirArquivo() {
+    try {
+        arquivo = new FileReader("arquivo.txt");
+    } catch (FileNotFoundException e) {
+        System.out.println("Arquivo não encontrado");
+    }
+}
+```
+
+---
+
+### 7. Cláusula throws
+
+A cláusula `throws` é usada na assinatura de um método para informar que o método **chamador** deverá tratar a possibilidade daquelas exceções ocorrerem. É utilizada com classes de erros verificáveis: em vez de tratar a exceção, o método delega esse tratamento para quem o chamou.
+
+```java
+public void abrirArquivo() throws FileNotFoundException {
+    arquivo = new FileReader("arquivo.txt");
+}
+```
+
+É possível informar várias exceções na cláusula `throws`, bastando separá-las por vírgula.
+
+> Resumo prático da escolha: ou você trata a exceção verificável aqui (`try..catch`), ou declara `throws` e repassa a responsabilidade para o chamador. Uma das duas é obrigatória para o código compilar.
+
+---
+
+### 8. Cláusula finally
+
+A cláusula `finally` está associada ao comando `try` e serve para definir um conjunto de comandos que **sempre** serão executados, quer o `try` termine com erro, quer termine sem erro.
+
+```java
+try {
+    comando;
+    comando;
+    // ...
+} catch (ClasseExcecao objeto) {
+    comando caso ocorra erro;
+    comando caso ocorra erro;
+    // ...
+} finally {
+    comando;
+    comando;
+}
+```
+
+O uso da cláusula `finally` geralmente está associado à liberação de recursos alocados durante o bloco `try` (fechar um arquivo, uma conexão, etc.), garantindo que essa liberação aconteça mesmo que ocorra uma exceção.
+
+---
+
+### 9. Observações finais
+
+- Todo comando `try` define dois ou mais blocos, referentes ao seu corpo e às suas cláusulas `catch`. Esses blocos definem **escopo de variáveis**, então uma variável declarada dentro do `try` não é visível no `catch` nem fora dele. Ver [Aula 2 - Escopo de Variáveis](#aula-2).
+- Se um método de uma superclasse declara exceções verificáveis, ao sobrescrever esse método é obrigatório redeclarar as mesmas exceções (ou um subconjunto compatível delas).
+
+> Boas práticas: trate apenas as exceções que você realmente sabe como resolver; ordene os `catch` do mais específico para o mais genérico; use `finally` (ou try-with-resources) para não deixar recursos abertos; e evite capturar `Exception` genérica só para silenciar o problema.

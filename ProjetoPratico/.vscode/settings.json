@@ -1,7 +1,10 @@
 {
-    "java.project.sourcePaths": ["src"],
+    "java.project.sourcePaths": [
+        "src",
+        "test"
+    ],
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
-        "lib/**/*.jar"
+        "d:\\dev\\workspace\\FURB\\FURB-2026_02_POO_16804\\ProjetoPratico\\lib\\junit-platform-console-standalone-6.0.0.jar"
     ]
 }

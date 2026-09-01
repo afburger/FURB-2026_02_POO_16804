@@ -9,6 +9,7 @@
 - [Aula 2 - Escopo de Variáveis](#aula-2)
 - [Aula 3 - Diagrama de Objetos, Encapsulamento e Membros de Classe](#aula-3)
 - [Aula 6 - Lançamento de Exceções](#aula-6)
+- [Aula 7 - Tratamento de Exceções](#aula-7)
 
 <!--
 Padrão para as próximas aulas:
@@ -735,7 +736,7 @@ O operador `new` realiza quatro operações:
 
 ---
 
-<a id="aula-4"></a>
+<a id="aula-6"></a>
 
 ## Aula 6 - Lançamento de Exceções
 

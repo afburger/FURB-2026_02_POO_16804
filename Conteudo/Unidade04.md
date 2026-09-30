@@ -5,7 +5,8 @@
 
 ## Sumário
 
-- [Aula 15 - Herança](#aula-15)
+- [Aula 15 - Herança (parte 1)](#aula-15)
+- [Aula 17 - Herança (parte 2)](#aula-17)
 
 <!--
 Padrão para as próximas aulas:
@@ -20,7 +21,7 @@ Padrão para as próximas aulas:
 
 <a id="aula-15"></a>
 
-## Aula 15 - Herança
+## Aula 15 - Herança (parte 1)
 
 ### 1. O que é herança
 
@@ -303,3 +304,134 @@ Classe3
 **Construtor padrão e herança.** Se nenhum construtor é declarado, o Java introduz o construtor padrão, que faz uma chamada ao construtor padrão da superclasse (`super()`). Porém, se a superclasse não tem construtor padrão (só tem construtor com parâmetros) e a subclasse não declara nenhum construtor, ocorre erro de compilação, pois o construtor padrão gerado automaticamente não conseguiria chamar `super()`. Nesse caso, o programador deve criar explicitamente um construtor na subclasse que chame o construtor existente da superclasse.
 
 > Isso se conecta ao que vimos na Unidade 01 (Construtores): declarar um construtor com parâmetros faz o Java deixar de fornecer o construtor padrão. Na herança, esse detalhe deixa de ser só uma conveniência e passa a poder quebrar a compilação da subclasse.
+
+---
+
+<a id="aula-17"></a>
+
+## Aula 17 - Herança (parte 2)
+
+### 1. Generalização
+
+A generalização é o processo inverso da especialização: em vez de partir de uma classe e criar subclasses mais específicas, partimos de várias classes parecidas e criamos uma superclasse. É um processo de encontrar e criar superclasses:
+
+- Num conjunto de classes relacionadas, localizar os membros (atributos e métodos) comuns entre elas.
+- Mover os membros comuns para uma classe, tornando-a superclasse das classes originais.
+- Os métodos cuja implementação é diferente entre as classes permanecem em cada classe original.
+
+O processo pode ser aplicado mais de uma vez, sobre um conjunto menor de classes. Se, após generalizar, uma classe não possuir mais nenhum membro próprio, ela pode ser promovida a superclasse das demais.
+
+> Em muitas ocasiões, a superclasse que surge da generalização não tem um significado no mundo real: ela representa um conceito abstrato. Isso é um efeito natural do processo e motiva o próximo conceito, a classe abstrata.
+
+---
+
+### 2. Classe abstrata
+
+Uma classe abstrata representa um conceito genérico. Em UML, é expressa com o nome da classe em itálico. Em Java, usa-se o modificador `abstract`:
+
+```java
+public abstract class ContaBancaria {
+
+    // ...
+
+}
+```
+
+Características:
+
+- Por ser uma abstração, não é possível criar objetos de classes abstratas.
+- Classes abstratas precisam ser estendidas para serem reusadas.
+- Classes que não são abstratas são chamadas de classes concretas, e somente classes concretas podem ser instanciadas.
+
+```java
+public abstract class Classe1 {
+
+    // ...
+
+}
+
+Classe1 c1 = new Classe1();   // erro de compilação: não pode instanciar Classe1
+```
+
+> Uma classe abstrata pode, inclusive, ser especializada a partir de uma classe concreta: a hierarquia pode combinar classes concretas e abstratas em diferentes níveis.
+
+---
+
+### 3. Métodos abstratos
+
+**Motivação.** Imagine uma superclasse `Figura` com o método `desenhar()` de corpo vazio, e subclasses como `Pentagono` que herdam esse corpo vazio. Nada obriga a subclasse a de fato implementar `desenhar()`, e um `desenhar()` vazio não tem sentido para uma figura concreta. Como exigir que cada subclasse forneça sua própria implementação?
+
+```java
+public class Figura {
+
+    private Color cor;
+
+    public void desenhar() {
+
+    }
+
+}
+
+public class Pentagono extends Figura {
+
+}
+```
+
+**Solução.** Definindo o método como abstrato, instruímos o compilador a exigir que as subclasses implementem um método com aquela assinatura. Em UML, os métodos abstratos são escritos em itálico.
+
+Um método abstrato é um método sem implementação (sem corpo): declara-se que o método deve existir na subclasse, embora não haja implementação na superclasse. É declarado com o modificador `abstract` antes do tipo de retorno:
+
+```java
+public abstract class Figura {
+
+    private Color cor;
+
+    public abstract void desenhar();
+
+}
+```
+
+Regras importantes:
+
+- Qualquer classe que contenha um método abstrato deve ser abstrata também.
+- Se a subclasse não implementar o método abstrato, ocorre erro de compilação:
+
+```java
+public class Pentagono extends Figura {
+
+}
+// erro de compilação: Pentagono precisa implementar o método abstrato desenhar()
+```
+
+> Método abstrato e sobrescrita se completam: o método abstrato obriga a subclasse a fornecer a implementação, e a subclasse o faz sobrescrevendo o método (vale usar `@Override`, visto na parte 1).
+
+---
+
+### 4. Impedir extensão e sobrescrita: a palavra-chave final
+
+Nem sempre queremos permitir herança ou sobrescrita. A palavra reservada `final` restringe isso.
+
+**Impedir que um método seja sobrescrito.** Às vezes um método tem uma implementação que não deveria ser alterada por sobrescrita, pois mudar o algoritmo poderia deixar o estado do objeto inconsistente. Para impedir a sobrescrita, usa-se `final` antes do tipo de retorno:
+
+```java
+public final void metodo1() {
+    // ...
+}
+```
+
+**Impedir que uma classe seja estendida.** Usa-se `final` antes da palavra `class`:
+
+```java
+public final class Classe1 {
+
+    // ...
+
+}
+
+public class Classe2 extends Classe1 {   // erro de compilação
+}
+```
+
+Esse recurso é útil, por exemplo, para criar classes de objetos imutáveis, como a classe `String`.
+
+> Repare no contraste entre os modificadores vistos: `abstract` obriga a subclasse a implementar; `final` proíbe a subclasse de alterar (ou até de existir). São as duas pontas do controle sobre a herança.

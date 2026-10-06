@@ -65,21 +65,20 @@ public class Playlist {
             throw new IndexOutOfBoundsException(
                     "Posição inválida: " + indice + ". A playlist tem " + musicas.size() + " música(s).");
         }
-        
         musicas.remove(indice);
     }
 
     public int getDuracaoTotalSegundos() {
         int total = 0;
-        for (Musica musica : musicas) {
-            total = total + musica.getDuracaoEmSegundos();
+        for (Musica m : musicas) {
+            total = total + m.getDuracaoEmSegundos();
         }
         return total;
     }
 
     public void reproduzirTudo() {
-        for (Musica musica : musicas) {
-            musica.reproduzir();
+        for (Musica m : musicas) {
+            m.reproduzir();
         }
     }
 

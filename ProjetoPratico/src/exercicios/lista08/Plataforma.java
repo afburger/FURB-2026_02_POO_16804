@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public class Plataforma {
 
     private ArrayList<Musica> musicas;
-
     private ArrayList<Usuario> usuarios;
+
 
     public Plataforma() {
         this.musicas = new ArrayList<>();
@@ -36,9 +36,9 @@ public class Plataforma {
      * @return a musica ou null se nao encontrar.
      */
     public Musica buscarMusicaPorId(int id) {
-        for (Musica musica : musicas) {
-            if (musica.getId() == id) {
-                return musica;
+        for (Musica mus : musicas) {
+            if (mus.getId() == id) {
+                return mus;
             }
         }
         return null;
@@ -46,9 +46,9 @@ public class Plataforma {
 
     /** Busca pela primeira musica com o titulo informado (sobrecarga que recebe String). */
     public Musica buscarMusica(String titulo) {
-        for (Musica musica : musicas) {
-            if (musica.getTitulo().equalsIgnoreCase(titulo)) {
-                return musica;
+        for (Musica mus : musicas) {
+            if (mus.getTitulo().equalsIgnoreCase(titulo)) {
+                return mus;
             }
         }
         return null;

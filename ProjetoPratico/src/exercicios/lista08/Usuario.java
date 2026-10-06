@@ -45,11 +45,11 @@ public class Usuario {
 
     public void seguir(Usuario outro) {
         if (this.equals(outro)) {
-            throw new IllegalArgumentException("Você não pode seguir você mesmo.");
+            throw new IllegalArgumentException("Não pode seguir você mesmo.");
         }
         for (Usuario usuario : seguindo) {
             if (usuario.equals(outro)) {
-                throw new IllegalArgumentException("Você já segue esse usuário.");
+                throw new IllegalArgumentException("Você já segue esse usuário");
             }
         }
         seguindo.add(outro);
@@ -62,4 +62,5 @@ public class Usuario {
     public int getQuantidadeSeguindo() {
         return seguindo.size();
     }
+
 }
